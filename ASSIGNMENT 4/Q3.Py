@@ -1,51 +1,98 @@
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
+
 from sklearn.datasets import fetch_california_housing
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.metrics import r2_score
 
-housing = fetch_california_housing()
 
-df = pd.DataFrame(
-    housing.data,
-    columns=housing.feature_names
+
+dataset = fetch_california_housing()
+
+
+data = pd.DataFrame(
+    dataset.data,
+    columns=dataset.feature_names
 )
 
-df["Price"] = housing.target
+data["Price"] = dataset.target
 
-X = df[["MedInc", "AveRooms"]]
-y = df["Price"]
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+features = data[["MedInc", "AveRooms"]]
+target = data["Price"]
 
-linear_model = LinearRegression()
-linear_model.fit(X_train, y_train)
 
-linear_pred = linear_model.predict(X_test)
-linear_r2 = r2_score(y_test, linear_pred)
 
-poly = PolynomialFeatures(degree=3)
+X_train, X_test, y_train, y_test = train_test_split(
+    features,
+    target,
+    test_size=0.20,
+    random_state=42
+)
 
-X_train_poly = poly.fit_transform(X_train)
-X_test_poly = poly.transform(X_test)
 
-poly_model = LinearRegression()
-poly_model.fit(X_train_poly, y_train)
 
-poly_pred = poly_model.predict(X_test_poly)
-poly_r2 = r2_score(y_test, poly_pred)
+linear = LinearRegression()
+linear.fit(X_train, y_train)
 
-print("Linear Regression R2 Score:", linear_r2)
-print("Polynomial Regression R2 Score:", poly_r2)
+linear_output = linear.predict(X_test)
 
-print("\nComparison")
-print("Linear Regression     :", linear_r2)
-print("Polynomial Regression :", poly_r2)
+linear_score = r2_score(
+    y_test,
+    linear_output
+)
 
-if poly_r2 > linear_r2:
-    print("\nPolynomial Regression has a higher R2 score.")
+
+
+transformer = PolynomialFeatures(
+    degree=3,
+    include_bias=True
+)
+
+train_poly = transformer.fit_transform(X_train)
+test_poly = transformer.transform(X_test)
+
+polynomial = LinearRegression()
+polynomial.fit(train_poly, y_train)
+
+polynomial_output = polynomial.predict(test_poly)
+
+polynomial_score = r2_score(
+    y_test,
+    polynomial_output
+)
+
+
+
+
+print("=" * 50)
+print("REGRESSION MODEL COMPARISON")
+print("=" * 50)
+
+print(f"Linear Regression R²     : {linear_score:.4f}")
+print(f"Polynomial Regression R² : {polynomial_score:.4f}")
+
+print("\n" + "-" * 50)
+print("Comparison")
+print("-" * 50)
+
+models = {
+    "Linear Regression": linear_score,
+    "Polynomial Regression": polynomial_score
+}
+
+for name, score in models.items():
+    print(f"{name:<25} : {score:.4f}")
+
+print("-" * 50)
+
+if polynomial_score > linear_score:
+    print("Polynomial model has the larger R² value.")
+elif linear_score > polynomial_score:
+    print("Linear model has the larger R² value.")
 else:
-    print("\nLinear Regression has a higher R2 score.")
+    print("Both models have the same R² value.")
+
+
