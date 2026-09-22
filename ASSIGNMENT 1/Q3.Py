@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 data = {
     "Student Name": ["Rahul", "Pritam", "Samrat", "Anubhav", "Ankit"],
@@ -9,15 +10,14 @@ data = {
 
 df = pd.DataFrame(data)
 
-def assign_grade(marks):
-    if marks >= 90:
-        return 'A'
-    elif marks >= 80:
-        return 'B'
-    elif marks >= 70:
-        return 'C'
-    else:
-        return 'D'
+conditions = [
+    df["Marks"] >= 90,
+    df["Marks"] >= 80,
+    df["Marks"] >= 70
+]
 
-df["Grade"] = df["Marks"].apply(assign_grade)
+grades = ["A", "B", "C"]
+
+df["Grade"] = np.select(conditions, grades, default="D")
+
 print(df)
