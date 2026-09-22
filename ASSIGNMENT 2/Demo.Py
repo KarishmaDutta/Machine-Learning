@@ -5,42 +5,50 @@ from sklearn.datasets import load_iris
 
 iris = load_iris()
 
-df = pd.DataFrame(iris.data, columns = iris.feature_names)
+df = pd.DataFrame(iris.data, columns=iris.feature_names)
 
-df["target"] = iris.target
+df = df.assign(target=iris.target)
 
-print("--- First Five Rows ---")
+
+print("First Five Rows:")
 print(df.head())
 
-print("\n--- Dataset Information ---")
-print(df.info())
+print("\nDataset Information:")
+df.info()
 
-print("\n--- Statiscal Summary ---")
+print("\nStatistical Summary:")
 print(df.describe())
 
-print("\n--- Missing Values ---")
-print(df.isnull().sum())
 
-print("\n--- Correlation Matrix ---")
-print(df.corr(numeric_only = True))
+print("\nMissing Values:")
+print(df.isna().sum())
 
-plt.figure(figsize = (7, 5))
+
+print("\nCorrelation Matrix:")
+print(df.select_dtypes("number").corr())
+
+
+sns.set_style("whitegrid")
 
 sns.scatterplot(
-
-    data = df,
-    x = "sepal length (cm)", 
-    y = "petal length (cm)",
-    hue = "target",
-    palette = "viridis"
-
+    x=df["sepal length (cm)"],
+    y=df["petal length (cm)"],
+    hue=df["target"],
+    palette="viridis"
 )
 
-plt.title("sepal Length vs Petal Length by class")
+plt.title("Sepal Length vs Petal Length by Class")
+plt.xlabel("Sepal Length (cm)")
+plt.ylabel("Petal Length (cm)")
 plt.show()
 
-plt.figure(figsize = (7, 5))
-sns.histplot(df["sepal length (cm)"], kde = True, color = "blue")
+sns.histplot(
+    data=df,
+    x="sepal length (cm)",
+    kde=True,
+    color="blue"
+)
 
-plt.title("distribution of Sepal Length")
+plt.title("Distribution of Sepal Length")
+plt.xlabel("Sepal Length (cm)")
 plt.show()
